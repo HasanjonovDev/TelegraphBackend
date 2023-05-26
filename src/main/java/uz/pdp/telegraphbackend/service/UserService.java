@@ -15,8 +15,8 @@ public class UserService  {
     private final ModelMapper modelMapper;
 
     public UserEntity searchByUsername(UserCreateDto userCreateDto){
-        UserEntity user = userRepository.findByUsername(userCreateDto.getUsername());
         try {
+            UserEntity user = userRepository.findByUsername(userCreateDto.getUsername());
             if (user != null){
                 return user;
             }
