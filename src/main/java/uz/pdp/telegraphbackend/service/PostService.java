@@ -10,6 +10,7 @@ import uz.pdp.telegraphbackend.repository.PostRepository;
 import uz.pdp.telegraphbackend.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,5 +34,13 @@ public class PostService {
         }else {
             return null;
         }
+    }
+
+    public List<PostEntity> searchByLink(String link){
+        return postRepository.findPostEntitiesByLinkContainingIgnoreCaseOrderByCreatedDateAsc(link);
+    }
+
+    public List<PostEntity> getByOwnerId(UUID id){
+        return postRepository.findPostEntitiesByOwnerIdOrderByCreatedDate(id);
     }
 }

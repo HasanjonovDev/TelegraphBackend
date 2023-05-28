@@ -11,11 +11,12 @@ import uz.pdp.telegraphbackend.dto.PostCreateDto;
 import uz.pdp.telegraphbackend.entity.PostEntity;
 import uz.pdp.telegraphbackend.service.PostService;
 
+import java.util.List;
 import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/post")
+@RequestMapping("/api/post")
 public class PostController {
     private final PostService postService;
 
@@ -29,5 +30,21 @@ public class PostController {
              return ResponseEntity.ok(post);
         }
         return null;
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<List<PostEntity>> search(
+            @RequestParam String link
+    ){
+        List<PostEntity> posts = postService.searchByLink(link);
+        return ResponseEntity.ok(posts);
+    }
+
+    @PostMapping("/myPosts")
+    public ResponseEntity<List<PostEntity>> myPosts(
+            @RequestParam UUID ownerId
+    ){
+        List<PostEntity> byOwnerId = postService.getByOwnerId(ownerId);
+        return ResponseEntity.ok(byOwnerId);
     }
 }
