@@ -1,30 +1,40 @@
 package uz.pdp.telegraphbackend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.*;
 import uz.pdp.telegraphbackend.dto.UserCreateDto;
 import uz.pdp.telegraphbackend.entity.UserEntity;
+import uz.pdp.telegraphbackend.exceptions.RequestValidationException;
 import uz.pdp.telegraphbackend.service.UserService;
 
-@Controller
+import java.util.List;
+
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
 public class UserController {
     private final UserService userService;
 
     @PostMapping("/add")
-    @ResponseBody
-    public ResponseEntity<UserEntity> addUser(
-            @RequestBody UserCreateDto userCreateDto
+    public UserEntity addUser(
+            @Valid @RequestBody UserCreateDto userCreateDto,
+            BindingResult bindingResult
             ){
-        if (userService.searchByUsername(userCreateDto) == null){
-            return ResponseEntity.ok(userService.add(userCreateDto));
+        if (bindingResult.hasErrors()){
+            List<ObjectError> errors = bindingResult.getAllErrors();
+            throw new RequestValidationException(errors);
         }
-        return null;
+        return userService.add(userCreateDto);
+    }
+
+    @PostMapping("/sign-in")
+    public UserEntity signIn(
+            @RequestParam String username,
+            @RequestParam String password
+    ){
+        return userService.signIn(username,password);
     }
 }

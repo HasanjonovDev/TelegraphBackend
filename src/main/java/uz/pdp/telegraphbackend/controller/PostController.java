@@ -1,50 +1,53 @@
 package uz.pdp.telegraphbackend.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.Page;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.*;
 import uz.pdp.telegraphbackend.dto.PostCreateDto;
 import uz.pdp.telegraphbackend.entity.PostEntity;
+import uz.pdp.telegraphbackend.exceptions.RequestValidationException;
 import uz.pdp.telegraphbackend.service.PostService;
 
 import java.util.List;
 import java.util.UUID;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/post")
 public class PostController {
     private final PostService postService;
 
     @PostMapping("/add")
-    public ResponseEntity<PostEntity> add(
-            @RequestBody PostCreateDto postCreateDto,
-            @RequestParam UUID ownerId
+    public PostEntity add(
+            @Valid @RequestBody PostCreateDto postCreateDto,
+            @RequestParam UUID ownerId,
+            BindingResult bindingResult
             ){
-        PostEntity post = postService.add(postCreateDto, ownerId);
-        if (post!=null){
-             return ResponseEntity.ok(post);
+        if (bindingResult.hasErrors()){
+            List<ObjectError> errors = bindingResult.getAllErrors();
+            throw  new RequestValidationException(errors);
         }
-        return null;
+        return postService.add(postCreateDto, ownerId);
     }
 
     @PostMapping("/search")
-    public ResponseEntity<List<PostEntity>> search(
-            @RequestParam String link
+    public Page<PostEntity> search(
+            @RequestParam String link,
+            @RequestParam(required = false,defaultValue = "0") String page,
+            @RequestParam(required = false,defaultValue = "10") String size
     ){
-        List<PostEntity> posts = postService.searchByLink(link);
-        return ResponseEntity.ok(posts);
+        return postService.searchByLink(link,Integer.parseInt(page),Integer.parseInt(size));
     }
 
     @PostMapping("/myPosts")
-    public ResponseEntity<List<PostEntity>> myPosts(
-            @RequestParam UUID ownerId
+    public Page<PostEntity> myPosts(
+            @RequestParam UUID ownerId,
+            @RequestParam(required = false,defaultValue = "0") String page,
+            @RequestParam(required = false,defaultValue = "10") String size
     ){
-        List<PostEntity> byOwnerId = postService.getByOwnerId(ownerId);
-        return ResponseEntity.ok(byOwnerId);
+        return  postService.getByOwnerId(ownerId,Integer.parseInt(size),Integer.parseInt(page));
     }
 }

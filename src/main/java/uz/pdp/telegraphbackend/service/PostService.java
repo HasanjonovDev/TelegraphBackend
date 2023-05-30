@@ -2,6 +2,10 @@ package uz.pdp.telegraphbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uz.pdp.telegraphbackend.dto.PostCreateDto;
 import uz.pdp.telegraphbackend.entity.PostEntity;
@@ -10,7 +14,6 @@ import uz.pdp.telegraphbackend.repository.PostRepository;
 import uz.pdp.telegraphbackend.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,11 +39,15 @@ public class PostService {
         }
     }
 
-    public List<PostEntity> searchByLink(String link){
-        return postRepository.findPostEntitiesByLinkContainingIgnoreCaseOrderByCreatedDateAsc(link);
+    public Page<PostEntity> searchByLink(String link,int page,int size){
+        Sort sort = Sort.by(Sort.Direction.ASC,"createdDate");
+        Pageable pageable = PageRequest.of(page,size,sort);
+        return postRepository.findAllByLinkContainingIgnoreCase(pageable,link);
     }
 
-    public List<PostEntity> getByOwnerId(UUID id){
-        return postRepository.findPostEntitiesByOwnerIdOrderByCreatedDate(id);
+    public Page<PostEntity> getByOwnerId(UUID id, int size, int page){
+        Sort sort = Sort.by(Sort.Direction.ASC,"createdDate");
+        Pageable pageable = PageRequest.of(page,size,sort);
+        return postRepository.findAllByOwnerId(pageable,id);
     }
 }
