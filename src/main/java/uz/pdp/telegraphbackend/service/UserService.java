@@ -19,10 +19,10 @@ public class UserService  {
         return userRepository.save(user);
     }
 
-    public UserEntity signIn(String username,String password){
-        UserEntity user = userRepository.findUserEntityByUsername(username)
+    public UserEntity signIn(UserCreateDto userCreateDto){
+        UserEntity user = userRepository.findUserEntityByUsername(userCreateDto.getUsername())
                 .orElseThrow(() -> new AuthenticationFailedException("username not found"));
-        if (user.getPassword().equals(password)){
+        if (user.getPassword().equals(userCreateDto.getPassword())){
             return user;
         }
         throw new AuthenticationFailedException("incorrect password");

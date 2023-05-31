@@ -32,9 +32,8 @@ public class UserController {
 
     @PostMapping("/sign-in")
     public UserEntity signIn(
-            @RequestParam String username,
-            @RequestParam String password
+            @RequestBody UserCreateDto userCreateDto
     ){
-        return userService.signIn(username,password);
+        return userService.signIn(userCreateDto);
     }
 }

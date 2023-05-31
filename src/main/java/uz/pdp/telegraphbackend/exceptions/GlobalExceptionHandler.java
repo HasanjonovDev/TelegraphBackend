@@ -28,4 +28,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ){
         return ResponseEntity.status(400).body("Username already Exists");
     }
+
+    @ExceptionHandler(value = {OwnerNotFoundException.class})
+    public ResponseEntity<String> ownerNotFoundException(
+            OwnerNotFoundException exception
+    ){
+        return ResponseEntity.status(400).body(exception.getMessage());
+    }
 }
