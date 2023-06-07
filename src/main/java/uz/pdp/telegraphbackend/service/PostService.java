@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uz.pdp.telegraphbackend.dto.PostCreateDto;
 import uz.pdp.telegraphbackend.entity.PostEntity;
 import uz.pdp.telegraphbackend.entity.UserEntity;
+import uz.pdp.telegraphbackend.exceptions.OwnerNotFoundException;
 import uz.pdp.telegraphbackend.repository.PostRepository;
 import uz.pdp.telegraphbackend.repository.UserRepository;
 
@@ -24,9 +25,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final ModelMapper modelMapper;
 
-    public PostEntity add(PostCreateDto postCreateDto, UUID userId){
+    public PostEntity add(PostCreateDto postCreateDto){
         PostEntity postEntity = modelMapper.map(postCreateDto, PostEntity.class);
-        Optional<UserEntity> user = userRepository.findById(userId);
+        Optional<UserEntity> user = userRepository.findById(postCreateDto.getOwnerId());
         UserEntity userEntity = user.orElse(null);
         if (userEntity!=null){
             String name = userEntity.getName().replaceAll(" ","");
@@ -35,7 +36,7 @@ public class PostService {
             postEntity.setLink(link);
             return postRepository.save(postEntity);
         }else {
-            return null;
+            throw  new OwnerNotFoundException("Owner Not found");
         }
     }
 
